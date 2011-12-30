@@ -1,3 +1,5 @@
+"pelonpelon@gmail.com
+"adiaousa.com
 set nocompatible               " be iMproved
 filetype off                   " required!
 
