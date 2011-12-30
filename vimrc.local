@@ -1,0 +1,364 @@
+"vimrc.local
+
+"""""""""""""""""""
+" Vendor Settings "
+"""""""""""""""""""
+"twitvim
+let twitvim_login = "pelonpelon:la1137cp"
+let twitvim_count= 40
+let g:twitvim_show_header= 0
+let g:twitvim_filter_enable = 0
+let g:twitvim_filter_regex = ''
+"google reader
+let g:googlereader_passwd="SS2bon2b"
+let g:googlereader_email="pelonpelon@gmail.com"
+let twitvim_old_retweet = 1
+let twitvim_browser_cmd = "iceweasel -no-remote -P Home"
+"vimail :NewMail :SendMail
+let g:vimail_from = "pelonpelon@gmail.com"
+"let g:vimail_host
+"let g:vimail_sendmail = "msmtp"
+let g:vimail_close_on_send = 0
+
+
+
+
+
+""""""""""""""""
+" Vim Settings "
+""""""""""""""""
+"stop SuperTab from interfering with snippets
+let g:SuperTabMappingForward = '<c-tab>'
+let g:SuperTabMappingBackward = '<s-c-tab>'
+
+let g:today=strftime("%Y-%m-%d %a ")
+
+"for pathogen (plugins in bundle dir) to work
+filetype off
+call pathogen#runtime_append_all_bundles()
+call pathogen#helptags()
+filetype plugin indent on
+
+set statusline=%<%f\ %m\ %=%-20.(\ %y%r\ %)%-18.(\ %l/%L\ %v\ %)\ %P
+set autowriteall
+
+"save view, including folds
+"*au BufWinLeave *vimrc* mkview
+"*au BufWinEnter *vimrc* silent loadview
+
+""""""""""""
+"  Colors  "
+""""""""""""
+syntax enable
+
+" mutt
+" set up syntax highlighting for my e-mail
+au BufRead,BufNewFile .followup,.article,.letter,/tmp/pico*,nn.*,snd.*,/tmp/mutt* set ft=mail
+
+"Some Corrections
+hi Comment cterm=bold
+hi SpecialKey ctermfg=brown
+hi Directory ctermfg=brown
+hi StatusLineNC ctermfg=cyan ctermbg=blue cterm=bold
+hi StatusLine ctermfg=cyan ctermbg=blue cterm=bold
+
+"My syntax
+hi AgendaHeading ctermfg=blue cterm=bold,underline
+hi AgendaToday ctermfg=green ctermbg=red cterm=bold
+hi AgendaTodo ctermfg=gray ctermbg=blue cterm=bold
+hi AgendaDate ctermfg=green cterm=bold
+hi AgendaDay ctermfg=cyan cterm=underline
+hi AgendaTop ctermbg=red ctermfg=cyan cterm=bold
+hi AgendaNext ctermbg=yellow ctermfg=cyan cterm=bold
+hi AgendaHold ctermbg=magenta ctermfg=cyan cterm=bold
+hi AgendaShelf ctermbg=gray ctermfg=black
+hi AgendaNote ctermbg=gray ctermfg=blue
+hi AgendaJournal ctermfg=darkgray cterm=NONE
+"au BufRead,BufNew,BufEnter * syn match AgendaHeading "^\u\u[A-Z\ _:-]*\u" containedin=ALL
+"au BufRead,BufNew,BufEnter * syn keyword AgendaTodo  TODO containedin=ALL
+"au BufRead,BufNew,BufEnter * syn keyword AgendaTop TOP containedin=ALL
+"au BufRead,BufNew,BufEnter * syn keyword AgendaNext NEXT FIXIT containedin=ALL
+"au BufRead,BufNew,BufEnter * syn keyword AgendaHold HOLD containedin=ALL
+"au BufRead,BufNew,BufEnter * syn keyword AgendaShelf SHELF containedin=ALL
+"au BufRead,BufNew,BufEnter * syn keyword AgendaNote NOTES NOTE INBOX containedin=ALL
+""au BufRead,BufNew,BufEnter * syn match AgendaDate "[0-9][0-9][0-9][0-9][-/.][0-9][0-9][-/,][0-9][0-9]\(\ [A-Z][a-z][a-z]\)\?"
+""au BufRead,BufNew,BufEnter * syn match AgendaDate "\d\d\d\d[/.-]\d\d[/.-]\d\d\ \?[SMTWF]\?[uoehra]\?[neduit]\?"
+"au BufRead,BufNew,BufEnter * syn match AgendaDate "\d\d\d\d[/.-]\d\d[/.-]\d\d"
+""au BufRead,BufNew,BufEnter * syn match AgendaDay "\<[SMTWF][uoehra][neduit]\>"
+""au BufRead,BufNew,BufEnter * syn match AgendaDay "\<\([Ss]un\|[Mm]on\|[Tt]ues\?\|[Ww]edn\?e\?s\?\|[Tt]hur\?s\?\|[Ff]ri\|[Ss]atu\?r\?\)\(day\)\?\>"
+"au BufRead,BufNew,BufEnter * syn match AgendaDay "\<\([Ss]un\|[Mm]on\|[Tt]ue\|[Ww]ed\|[Tt]hu\|[Ff]ri\|[Ss]at\)\>"
+
+
+
+function! AgendaColors()
+  syn match AgendaHeading "^\u\u[A-Z\ _:-]*\u" containedin=ALL
+  syn keyword AgendaTodo  TODO containedin=ALL
+  syn keyword AgendaTop TOP containedin=ALL
+  syn keyword AgendaNext NEXT FIXIT containedin=ALL
+  syn keyword AgendaHold HOLD containedin=ALL
+  syn keyword AgendaShelf SHELF containedin=ALL
+  syn keyword AgendaNote NOTES NOTE INBOX containedin=ALL
+  let s:today =strftime("%Y-%m-%d")
+  exe 'syn match AgendaToday "'.s:today.'" containedin=ALL'
+  syn match AgendaDate "\d\d\d\d[/.-]\d\d[/.-]\d\d" containedin=ALL
+  syn match AgendaJournal "^MyJou.*" containedin=ALL
+  syn match AgendaDay "\<\([Ss]un\|[Mm]on\|[Tt]ue\|[Ww]ed\|[Tt]hu\|[Ff]ri\|[Ss]at\)\>"
+endf
+au BufRead,BufNew,BufEnter * call AgendaColors()
+
+""""""""""""
+" Mappings "
+""""""""""""
+
+autocmd BufEnter,BufNew *.erb*    imap  <buffer> <C-Z> <%=  %><C-O>2h
+autocmd BufEnter,BufNew *.erb*    nmap  <buffer> <C-Z> a<%=  %><C-O>2h
+"imap  <silent><expr><tab>  neocomplcache#sources#snippets_complete#expandable() ? "\<plug>(neocomplcache_snippets_expand)" : (pumvisible() ? "\<c-e>" : "\<tab>")
+"smap  <tab>  <right><plug>(neocomplcache_snippets_jump)
+"inoremap <expr><c-e>     neocomplcache#complete_common_string()
+
+"NERDTree
+noremap <silent> <f1> :execute "NERDTreeToggle"<cr>
+
+"SessionMan List
+:nmap ,sl :SessionList<CR>
+
+"edit specific pages
+:nmap ,l :e! ~/work/wiki/<CR>
+:nmap ,ev :e! ~/.vim/vimrc.local<CR>
+:nmap ,eg :e! ~/.vim/vimrc.gtd<CR>
+
+"use global clipboard
+vmap <C-c> :!xclip -i -selection clipboard<CR>u
+
+"search for selection
+vmap / y/<C-R>"<CR>
+
+"edit file under cursor
+nmap ,ef :e! <C-R><C-W><CR>
+
+"find word in wiki
+nmap ,f :silent! grep! -is <C-R><C-W><SPACE><C-R>=getcwd()<CR>/*<CR>:copen<CR>
+vmap ,f y:silent! grep! -is <C-R>"<SPACE><C-R>=getcwd()<CR>/*<CR>:copen<CR>
+
+"nmap ,d "_D"=strftime("%Y-%m-%d %a  ")<CR>pa
+"iabbr ,d <ESC>"_D"=strftime(" %Y-%m-%d %a")<CR>pa
+
+"source this file
+:nmap ,so :so ~/.vimrc.local<CR>
+
+"jump to exact mark with apostrophy
+map ' `
+
+"quick entry in Inbox.txt
+nmap ,, :au BufLeave */InBox.txt wq<CR>:vsplit ~/work/wiki/InBox.txt<CR>ggOTODO<SPACE>
+
+"change date mark in any file
+map <F3> msHmtgg/Last [cC]hange:\s*/e<CR>a<space><space><esc>"_D"=strftime("%Y-%m-%d %a")<CR>p'tzt`s
+
+"scroll in INSERT  mode
+inoremap <C-E> <C-X><C-E>
+inoremap <C-Y> <C-X><C-Y>
+
+
+"open Terminal in horizontal split
+nmap <F3> :ConqueTermSplit bash<CR>
+
+"Next Buffer
+nmap <S-TAB> :bn<CR>
+
+"Tab through windows
+nmap <TAB> <C-w><C-w>
+
+"Spellcheck
+nmap ,sp :setlocal spell
+
+"""""""""""""
+" commands  "
+"""""""""""""
+
+"Show changes in new window
+command! DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis | wincmd p | diffthis
+"Source other vim files
+command! SoBookmarklets	source $HOME/.vim/rc/bookmarklets.rc
+"Rails browser
+command! -bar -nargs=1 OpenURL :silent! !rails-browser <args> &
+"search system for documentation on arg
+command! -bar -nargs=1 Ldocs :set grepprg=~/bin/grepldocs\ $* | silent! grep! <args> | copen | redraw!
+"""""""""""""
+" functions "
+"""""""""""""
+function! MailWiki()
+  let a:thisfile = expand("%")
+"  call system("mailx -v -s ".a:thisfile." pelonpelon+qq@gmail.com < ".%)
+  silent exe "!mailx -s ".a:thisfile." pelonpelon+qq@gmail.com < %"
+  normal 
+endf
+function! MailThisFile()
+  let a:thisfile = expand("%")
+"  call system("mailx -v -s ".a:thisfile." pelonpelon+file@gmail.com < ".%)
+  silent exe "!mailx -s ".a:thisfile." pelonpelon+file@gmail.com < %"
+  normal 
+endf
+
+function! JournalEntry()
+	e ~/work/wiki/MyJournal.txt
+	if search('^'.g:today, 'cwe') != 0
+	  let time=strftime("%H:%M ")
+		call search('^2011')
+		call search('.', 'b')
+    exe 'normal o'
+		call append(line('.'), 	'	'.time)
+    exe 'normal j$A '
+	else
+	  normal gg
+	  call append(0,g:today)
+		exe 'normal k$'
+	endif
+endfunction
+nmap ,j :call JournalEntry()<CR>a
+
+
+"helpgrep word under cursor in error window
+function! SearchVimHelp()
+	 let @x = expand("<cword>")
+	 echo "Searching VimHelp for ".@x
+	 lgrep -i .*<C-R>x.* /usr/share/vim/vim72/doc/*.txt ~/.vim/doc/*
+endfunction
+nmap ,? :call SearchVimHelp()<CR>:lop<CR>
+vmap ,? :call SearchVimHelp()<CR>:lop<CR>
+
+"lookup word under cursor in English Texts directory
+silent! function! LookUp()
+	silent! setlocal grepprg=grep\ -Hin\ $*\ /dev/null
+	silent! setlocal grepformat=%f:%l:%m
+"	echo "starting Lookup in ".mode()." mode"
+"  pwd
+  let g:Word = "No Results"
+  if mode() == "n"
+	   let g:Word = expand("<cword>")
+  elseif mode() == "v"
+    normal y
+	   let g:Word = @"
+  endif
+  if g:Word[-2:] == "ly"
+	  let g:Word=g:Word[:-3]
+  elseif g:Word[-2:] == "ed"
+	  let g:Word=g:Word[:-3]
+  elseif g:Word[-3:] == "ing"
+	  let g:Word=g:Word[:-4]
+  elseif g:Word[-1:] == "s"
+	  let g:Word=g:Word[:-2]
+  endif
+  echo "Searching Texts directory for: ".g:Word
+  if g:Word != "No Results" || g:Word != ""
+	 cd /media/Scratch/English/Reference/Texts
+    silent! exe "lgrep! '".g:Word."\ \\[.*' Mcgraw"
+ 	 silent! exe "lgrepadd! '^[0-9].*".g:Word.".*' Swan"
+	 silent! exe "lgrepadd! '^[0-9].*".g:Word.".*' UPVB"
+	 silent! exe "lgrepadd! '\\-\\->.*".g:Word.".*' Mcgraw"
+	 silent! exe "lgrepadd! -i '\\-\\->.*".g:Word.".*' AmericanIdioms"
+	 silent! lop 15
+	 silent! exe 'syn match WarningMsg /\c\w*'.g:Word.'\w*/'
+	 silent! setlocal modifiable
+	 silent! %s/.*\///g
+	 silent! set nomodifiable
+	 silent! set nomodified
+	 silent! exe 'normal '
+	 normal gg
+  endif
+endfunction
+nmap ,lu :call LookUp()<CR>
+":lop 25<CR>:exe 'syn match WarningMsg /\c'.g:Word.'/'<CR>
+vmap ,lu :call LookUp()<CR>
+":lop 25<CR>:exe 'syn match WarningMsg /\c'.g:Word.'/'<CR>
+
+"go to URL in browser
+"function! HandleURI()
+"  let s:uri = matchstr(getline("."), '[a-z]*:\/\/[^ >,;<C-v><CR>:]*')
+"  echo s:uri
+"  if s:uri != ""
+"	  exec "!open \"" . s:uri . "\""
+"  else
+"	  echo "No URI found in line."
+"  endif
+"endfunction
+"nmap <Leader>w :call HandleURI()<CR>
+
+function! InsertDate()
+  call inputsave()
+  let g:HumanDay = input("Enter date: ")
+  if g:HumanDay == ""
+		let g:HumanDay = "today"
+	endif
+  call inputrestore()
+  let @d = system('date "+%Y-%m-%d %a" --date="' . g:HumanDay . '"')[0:-2]
+"  exe "normal a\<C-R>d \<LEFT>"
+endfunction
+nmap ,d :call InsertDate()<CR>a<C-R>d<SPACE>
+iabbr ,d <ESC>:call InsertDate()<CR>a<C-R>d
+
+function! Agenda_rc()
+  if !exists('g:agenda_loaded')
+    so ~/.vim/vimrc.gtd
+    let g:nextpage = 'calendar'
+  endif
+  call Agenda()
+endfunction
+nmap <F2> :call Agenda_rc()<CR>
+
+function! PrintVariable()
+  let g:Word = "No Results"
+  if mode() == "n"
+	   let g:Word = expand("<cword>")
+  elseif mode() == "v"
+    normal y
+	   let g:Word = @"
+  endif
+  if &ft == 'ruby'
+    exe "normal oputs '".g:Word.": ' + ".g:Word.".to_s"
+  endif
+endfunction
+nmap ,pv :call PrintVariable()<CR>
+""""""""""""
+" Autocmds "
+""""""""""""
+"while testing
+":set verbose=9
+
+au BufLeave * silent! w!
+
+au WinEnter * hi StatusLineNC cterm=NONE gui=NONE ctermbg=darkblue ctermfg=gray
+au WinEnter * hi StatusLine cterm=bold gui=bold ctermbg=darkblue ctermfg=white
+
+" au BufRead,BufNew,BufNewFile */wiki/*.txt setlocal ft=wiki
+
+au BufRead,BufNew,BufNewFile */rails_projects/* exec "if match('".&ft."', 'Rails') < 0 | setlocal ft=".&ft.".Rails | endif"
+
+
+" automatically delete trailing Dos-returns,whitespace
+au BufRead * silent! %s/[\r\ \t]\+$//
+
+" setup for Agenda
+au BufNew */wiki/InBox.txt call Agenda_rc()
+
+"force jquery syntax in coffeescript and javascript
+au BufRead,BufNewFile *.js setlocal ft=javascript.jquery syntax=javascript.jquery
+au BufRead,BufNewFile *.coffee setlocal ft=coffee.jquery syntax=coffee.jquery
+
+
+" to make :find search CWD first
+let s:default_path = escape(&path, '\ ') " store default value of 'path'
+" Always add the current file's directory to the path and tags list if not
+" already there. Add it to the beginning to speed up searches.
+autocmd BufRead *
+      \ let s:tempPath=escape(escape(expand("%:p:h"), ' '), '\ ') |
+      \ exec "set path-=".s:tempPath |
+      \ exec "set path-=".s:default_path |
+      \ exec "set path^=".s:tempPath |
+      \ exec "set path^=".s:default_path
+
+"done
+let g:loaded_vimrc_local = 1
+
+"vim:ft=vim:
+

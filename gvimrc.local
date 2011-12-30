@@ -1,0 +1,8 @@
+""""""""""
+" Colors "
+""""""""""
+au BufRead,BufNew,BufNewFile * hi StatusLine guifg=black
+au BufRead,BufNew,BufNewFile */rails_projects/* hi StatusLine guibg='#c03'
+
+" done
+let g:loaded_gvimrc_local = 1

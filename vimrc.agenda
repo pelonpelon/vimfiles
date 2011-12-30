@@ -1,0 +1,206 @@
+"2011-06-21 Tue  2011-06-21 Tue and today ,id
+"Last Change:  2011-06-16 Thu
+
+""""""""""""
+" Settings "
+""""""""""""
+
+
+set statusline=%<%f\ %m\ %=%-20.(\ %y%r\ %)%-18.(\ %l/%L\ %v\ %)\ %P
+
+""""""""""""
+"  Colors  "
+""""""""""""
+
+"Some Corrections
+hi SpecialKey ctermfg=brown
+hi Directory ctermfg=brown
+syn keyword WarningMsg TODO
+syn keyword DiffAdd NOTE NOTES INBOX
+syn keyword ErrorMsg XXX FIXME
+
+syn region Agenda matchgroup=Comment start="[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]" end="$"
+hi Agenda ctermfg=yellow
+
+""""""""""""
+" Mappings "
+""""""""""""
+
+"""""""""""""
+" commands  "
+"""""""""""""
+
+"""""""""""""
+" functions "
+"""""""""""""
+
+function! GTD(word)
+	let @w=a:word
+	if @w=='DATE'
+		call InsertDate()
+		let @w=@d
+	endif
+	exe 'normal gewcw'
+	if @" == 'TODO' || @" == 'TOP' || @" == 'NEXT' || @" == 'HOLD' || @" == 'SHELF' || @" == 'NOTE' || @" == 'NOTES'
+		exe 'normal i'.a:word
+	else
+	   normal Pwbiw
+	endif
+endfunction
+nmap ,t :call GTD('TODO')<CR>
+nmap ,p :call GTD('TOP')<CR>
+nmap ,n :call GTD('NEXT')<CR>
+nmap ,h :call GTD('HOLD')<CR>
+nmap ,s :call GTD('SHELF')<CR>
+nmap ," :call GTD('NOTE')<CR>
+nmap ,d :call GTD('DATE')<CR>
+nmap ,i :call GTD('INBOX')<CR>
+nmap ,f :call GTD('FIXME')<CR>
+
+  silent! let g:day=strftime("%d")
+  silent! let g:today=strftime("%Y-%m-%d")
+	silent! let g:yesterday=system("date -d yesterday +%Y-%m-%d")[0:9]
+	silent! let g:tomorrow=system("date -d tomorrow +%Y-%m-%d")[0:9]
+
+  silent! let g:month=strftime("%m")
+	silent! let g:nextmonth=system("date -d \"next month\" +%m")[0:1]
+
+  silent! let g:year=strftime("%Y")
+	silent! let g:nextyear=system("date -d \"next year\" +%Y")[0:3]
+
+
+cd! /home/pelon/work/wiki
+let g:page = ""
+let g:nextpage = ""
+function! Agenda(...)
+"toggle window
+	if g:page == "" && a:0 == 0
+		let qfw = 0
+		windo if &l:buftype == "quickfix" |
+		\ let qfw = winnr() | endif
+		if qfw
+			cclose
+			return
+		endif
+	endif
+  cd! /home/pelon/work/wiki
+
+  silent! let g:day=strftime("%d")
+"	silent! setlocal grepformat=%f:%l:%m
+
+	if (exists("a:1") && a:1 == "calendar") || g:nextpage == "calendar" || g:page == ""
+"		silent! setlocal grepprg=/home/pelon/bin/agendadategrep\ $*\ /dev/null
+		silent! setlocal grepprg=
+
+    silent! cgete system('grep -ns '.g:thismonth.' *.txt \|
+          \ sort -s -t : -k 3.1,3.4nb -k 3.6,3.7n -k 3.9,3.10n \|
+         " \ sed s/\\\(.....\\\).*\.txt/\\1/
+          \ ')
+         " \ 201[1-5][0-9-]\\{<C-v><CR>6\\}<C-v><CR>\\s\\w\\{<C-v><CR>3\\}<C-v><CR>\\s|
+"		silent! call setqflist([])
+"		silent! grepadd! "[\s]*201[1-9]-[0-1][0-9]-[0-3][0-9]".* *.txt
+"		silent! exe 'grep! \\\([1-2][90][0-9][0-9]'.g:today.
+"          \ '\\\\|[1-2][90][0-9][0-9]'.g:tomorrow.
+"          \ '\\\\|[1-2][90][0-9][0-9]-[0-1][0-9]-\\\).* "*.txt"'
+"		silent! grep! "[\s\S]*201[1-9]-[0-1][0-9]-[0-3][0-9]".* *.txt
+"		silent! exe 'grepadd! '.g:yesterday.' *.txt'
+"		silent! exe "grepadd! ".g:today." *.txt"
+"		silent! exe 'grepadd! "onica" *.txt'
+"		silent! exe 'grepadd! '.g:tomorrow.' *.txt'
+"		silent! exe 'grepadd! '.g:year.'-'.g:month.'-['.g:tomorrow[-2:-2].'-3][0-9] *.txt'
+"		silent! exe 'grepadd! '.g:year.'-'.nextmonth.'- *.txt'
+"		silent! exe 'grepadd! '.g:nextyear.'- *.txt'
+"		silent! exe 'grepadd! '.g:year.'-'.g:nextmonth.'- *.txt'
+"		silent! exe 'grepadd! '.g:year.'- *.txt'
+"		silent! exe 'grepadd! '.g:nextyear.' *.txt'
+"		silent! grepadd! "[\s\S]*".g:year."-".g:month:."-".g:day.* *.txt
+"		silent! grepadd! "[\s\S]*".g:year."-".g:month:."-[0-3][0-9]".* *.txt
+    let g:page = "calendar"
+    let g:nextpage = "todo"
+	else
+		silent! setlocal grepprg=agendakeywordgrep\ $*\ /dev/null
+		if (exists("a:1") && a:1 == "todo") || g:nextpage == "todo"
+			silent! exe 'grep! \\"TODO\\|INBOX\\".* "*.txt"'
+      let g:page = "todo"
+      let g:nextpage = "gtd"
+		elseif (exists("a:1") && a:1 == "gtd") || g:nextpage == "gtd"
+			silent! exe 'grep! \\"TOP\\|NEXT\\|HOLD\\|SHELF\\".* "*.txt"'
+      let g:page = "gtd"
+      let g:nextpage = "fix"
+		elseif (exists("a:1") && a:1 == "fix") || g:nextpage == "fix"
+			silent! exe 'grep! \\"XXX\\|FIXME\\".* "*.txt"'
+      let g:page = "fix"
+      let g:nextpage = "close"
+		elseif g:nextpage == "close"
+      cclose
+      return
+		else
+			echo "no arg"
+			cclose
+			return
+		endif
+	endif
+	silent! cope 20
+	silent! setlocal modifiable
+	silent! %s/\(\w\w\w\w\w\)[^.]*\.txt|\d\+|\(.*\)/\1|\ \2/
+	silent! hi Soon cterm=underline
+	silent! call matchadd("Soon", "[0-9]*".g:tomorrow.".*")
+	silent! call matchadd("Soon", "[0-9]*".g:today.".*")
+	silent! call matchadd("Question", "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]")
+	silent! call matchadd("WarningMsg", "TODO")
+	silent! call matchadd("DiffAdd", "NOTE")
+	silent! call matchadd("DiffAdd", "NOTES")
+	silent! call matchadd("DiffAdd", "INBOX")
+	silent! call matchadd("ErrorMsg", "FIXME")
+	silent! call matchadd("ErrorMsg", "XXX")
+	silent! call matchadd("ErrorMsg", "TOP")
+	silent! call matchadd("SpellLocal", "NEXT")
+	silent! call matchadd("DiffChange", "HOLD")
+	silent! call matchadd("IncSearch", "SHELF")
+	silent! normal gg
+	silent! setlocal nomodifiable
+	silent! setlocal nomodified
+	silent! exe 'normal '
+"	silent! setlocal grepprg=grep -n $* \dev\null
+"	silent! setlocal grepformat=%f:%l%m,%f  %l%m
+
+"	nmap <buffer> c :call Agenda("calendar")<CR>
+"	nmap <buffer> t :call Agenda("todo")<CR>
+"	nmap <buffer> g :call Agenda("gtd")<CR>
+"	nmap <buffer> f :call Agenda("fix")<CR>
+"  if a:0 > 0
+"	  echom "a:1 was: " a:1
+"  else
+"    echom "called without args"
+"  endif
+"	echom "g:page is: " g:page
+"	echom "g:nextpage is: " g:nextpage
+
+endfunction
+
+""""""""""""
+" Autocmds "
+""""""""""""
+
+"while testing
+"set verbose=1
+
+augroup qf
+au!
+au FileType qf syn keyword WildMenu TODO
+au FileType qf syn keyword ErrorMsg TOP XXX
+au FileType qf syn keyword SpellLocal NEXT FIXME
+au FileType qf syn keyword DiffChange HOLD
+au FileType qf syn keyword IncSearch SHELF
+au FileType qf syn keyword DiffAdd NOTES NOTE INBOX
+au FileType qf syn region Agenda matchgroup=Comment start="[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9].[A-Z][a-z][a-z]" end="$"
+au FileType qf hi Agenda ctermfg=yellow
+au FileType qf hi Search ctermfg=none ctermbg=none cterm=bold
+au FileType qf set cursorline
+au FileType qf hi CursorLine cterm=bold
+"au FileType qf nnoremap <buffer> t :call Agenda("todo")<CR>
+"au FileType qf nnoremap <buffer> c :call Agenda("calendar")<CR>
+"au FileType qf nnoremap <buffer> g :call Agenda("gtd")<CR>
+"au FileType qf nnoremap <buffer> f :call Agenda("fix")<CR>
+au FileType qf nnoremap <buffer> <F2> :call Agenda()<CR>
+augroup end

@@ -1,0 +1,204 @@
+let g:agenda_loaded = 1
+""""""""""""
+" Settings "
+""""""""""""
+
+""""""""""""
+"  Colors  "
+""""""""""""
+
+""""""""""""
+" Mappings "
+""""""""""""
+
+"""""""""""""
+" commands  "
+"""""""""""""
+
+"""""""""""""
+" functions "
+"""""""""""""
+
+function! GTD(word)
+	let @w=a:word
+	if @w=='DATE'
+		call InsertDate()
+		let @w=@d
+	endif
+	exe 'normal gewcw'
+	if @" == 'TODO' || @" == 'FIXIT' || @" == 'TOP' || @" == 'NEXT' || @" == 'HOLD' || @" == 'SHELF' || @" == 'NOTE' || @" == 'NOTES'
+		exe 'normal i'.a:word
+	else
+	   normal Pwbiw
+	endif
+endfunction
+nmap <SID>,t :call GTD('TODO')<CR>
+nmap <SID>,p :call GTD('TOP')<CR>
+nmap <SID>,n :call GTD('NEXT')<CR>
+nmap <SID>,h :call GTD('HOLD')<CR>
+nmap <SID>,s :call GTD('SHELF')<CR>
+nmap <SID>," :call GTD('NOTE')<CR>
+nmap <SID>,d :call GTD('DATE')<CR>
+nmap <SID>,f :call GTD('FIXIT')<CR>
+
+function! Agenda(...)
+"	let s:thisdir = getcwd()
+"	cd ~/work/wiki
+
+	let a:day =strftime("%d")
+	if a:day != "01"
+		let a:yesterday =a:day-1
+		let a:yesterdaymonth =strftime("%m")
+		let a:yesterdayyear =strftime("%Y")
+	else
+		let a:newyesterday =system('date +%d%m%Y -d yesterday')[0:-2]
+		let a:yesterday =a:newyesterday[0:1]
+		let a:yesterdaymonth =a:newyesterday[2:3]
+		let a:yesterdayyear =a:newyesterday[4:7]
+	endif
+	let a:month =strftime("%m")
+	let a:year =strftime("%Y")
+	let a:nextmonthyear =a:year
+	let shortear =a:year[2-3]
+	if a:month < 12
+		let a:nextmonth =a:month+1
+	else
+		let a:newmonth =system('date +%m%Y -d "next month"')[0:-2]
+		let a:nextmonth =a:newmonth[0:1]
+		let a:nextmonthyear =a:newmonth[2:5]
+	endif
+	"FIXIT tomorrow not highlighted in qf
+	let a:tomorrow =system('date +%Y-%m-%d -d tomorrow')
+
+	let g:thispage = g:nextpage
+	if exists('a:1')
+		let g:nextpage = a:1
+	endif
+
+	let a:wikifile = "/home/pelon/work/wiki/*.txt"
+	set grepformat=%f:%l:%m
+	if g:nextpage == "" || g:nextpage == "calendar"
+    let a:grepprg = &grepprg
+    set grepprg=/home/pelon/bin/agendadategrep\ $*\ /dev/null
+"    let a:searchterm=[12][90][0-9][0-9][0-9-]*\\s "*"
+"		silent grep! "[12][90][0-9][0-9][/.-][0-9][0-9][/.-][0-9][0-9]\\s\?\\u\?\\a\?\\a\?" "/home/pelon/work/wiki/*.txt"
+"		silent grep "\\b[12][90][0-9][0-9][/.-][0-9][0-9][/.-][0-9][0-9]\\b" "/home/pelon/work/wiki/*.txt"
+		silent! grep! "[12][90][0-9][0-9][/.-][0-9][0-9][/.-][0-9][0-9]" "/home/pelon/work/wiki/*.txt"
+"   silent grepadd! [12][90][0-9][0-9][0-9-]*\\s /home/pelon/work/wiki/*.txt
+"		let a:searchterm=".*".a:yesterdayyear."[-/.]".a:yesterdaymonth."[-/.]".a:yesterday.".*"
+"		silent cgete system('grep -n '.a:searchterm.' '.a:wikifile)
+"		let a:searchterm='.*[1-2][0-9][0-9][0-9][-/.]'.a:month.'[-/.]'.a:day.'.*'
+"		silent cadde system('grep -n '.a:searchterm.' '.a:wikifile)
+"		let a:searchterm='.*'.a:year.'[-/.]'.a:month.'[-/.]['.a:day[0].'-3].*'
+"		silent cadde system('grep -n '.a:searchterm.' '.a:wikifile)
+"		let a:searchterm='.*'.a:nextmonthyear.'[-/.]'.a:nextmonth.'[-/.].*'
+"		silent cadde system('grep -n '.a:searchterm.' '.a:wikifile)
+    exe 'set grepprg="'.a:grepprg.'"'
+		let g:nextpage = "todo"
+	elseif g:nextpage == "todo"
+		silent cgete system('grep -n TODO '.a:wikifile)
+		silent cadde system('grep -n INBOX '.a:wikifile)
+		let g:nextpage = "gtd"
+	elseif g:nextpage == "gtd"
+		silent cgete system('grep -n TOP '.a:wikifile)
+		silent cadde system('grep -n  NEXT '.a:wikifile)
+		silent cadde system('grep -n  HOLD '.a:wikifile)
+		silent cadde system('grep -n  SHELF '.a:wikifile)
+		let g:nextpage = "fixit"
+	elseif g:nextpage == "fixit"
+		silent let a:cwd = expand('#:h')
+		silent cgete system('grep -n  "/<FIXIT\>"  '.a:cwd)
+		silent cadde system('grep -n  FIXIT '.a:wikifile)
+"		silent cadde system('grep -n  "\<XXX\>"  '.a:cwd)
+		let g:nextpage = "calendar"
+	else
+"		silent! cgete system('grep -n '.a:year.'[-/.]'.a:month.' *.txt \| sort -s -t : -k 3.1,3.4nb -k 3.6,3.7n -k 3.9,3.10n')
+		let g:nextpage = "todo"
+	endif
+	silent copen 20
+	silent! setlocal modifiable
+	silent! %s/.*\/\(\w\w\w\w\w\)\([^|]*\)\(|\d\+|\)\(.*\)/\1\	\4/
+	silent! %s/^|.*\n//
+  redraw!
+  normal gg
+	call search("^TODAY")
+	silent! setlocal nomodifiable
+	silent! setlocal nomodified
+"	silent! call matchadd("AgendaDate", "[12][90][0-9][0-9][/.-][0-9][0-9][/.-][0-9][0-9]")
+""	silent! call matchadd("AgendaDate", "\d\d\d\d[/.-]\d\d[/.-]\d\d\ \?[SMTWF]\?[uoehra]\?[neduit]\?")
+""	silent! call matchadd("AgendaDay", "\<[SMTWF][uoehra][neduit]\>")
+"	silent! call matchadd("AgendaDay", "\<\(Sun\|Mon\|Tue\|Wed\|Thu\|Fri\|Sat\)\>")
+"	silent! call matchadd("StatusLineNC", "^TODAY.*")
+"	silent! call matchadd("StatusLineNC", '.*'.a:year.'[-/.]'.a:month.'[-/.]'.a:day.".*")
+"	silent! call matchadd("StatusLineNC", '.*'.a:tomorrow.".*")
+  call AgendaColors()
+	au FileType qf hi Search ctermfg=none ctermbg=none cterm=bold
+	au FileType qf setlocal cursorline
+	au FileType qf hi CursorLine cterm=bold
+"	au BufLeave * let g:nextpage ='calendar'|au! BufLeave *
+"	au BufLeave * cclose|au! BufLeave *
+"	let &statusline=g:thispage
+	exe "setlocal statusline=".g:thispage
+"	au BufLeave * set statusline=%<%f\ %m\ %=%-20.(\ %y%r\ %)%-18.(\ %l/%L\ %v\ %)\ %P
+"	au InsertCharPre * echom v:char
+"	nmap t :set eventignore=BufLeave<CR>:<CR><CR>:call GTD('TOP')<CR>:w<CR>:wincmd p<CR>:set ei=<CR>
+"	nmap <buffer> t :<CR><CR>:call GTD('TOP')<CR>:w<CR>:wincmd p<CR>:call Agenda(g:thispage)<CR>
+"	:<CR><CR>:call GTD('TOP')<CR>:w<CR>:wincmd p<CR>:call Agenda(g:thispage)<CR>
+
+"TODO VIM Agenda add heading to qf output
+"TODO VIM Agenda capture esc key to cclose
+"	cd s:thisdir
+endfunction
+
+function! FetchMail()
+    let a:grepprg = &grepprg
+    set grepprg=/home/pelon/bin/mail-headers\ $*\ /dev/null
+    silent! grep!
+    exe 'set grepprg="'.a:grepprg.'"'
+  cope
+endf
+
+
+""""""""""""
+" Autocmds "
+""""""""""""
+
+"while testing
+"set verbose=1
+
+augroup wiki
+au!
+au FileType wiki setlocal tw=78
+au FileType wiki setlocal ts=3
+au FileType wiki setlocal sts=3
+au FileType wiki setlocal shiftwidth=3
+au FileType wiki setlocal nonumber
+au FileType wiki setlocal fo=tqcn
+au FileType wiki setlocal nofoldenable
+au FileType wiki setlocal foldmethod=indent
+au FileType wiki setlocal noexpandtab
+au FileType wiki setlocal autoindent
+au FileType wiki setlocal autochdir
+au FileType wiki setlocal foldcolumn=1
+"au Filetype wiki silent! call matchadd("WarningMsg", ".*".g:year.'[-/.]'.g:month.'[-/.]'.g:day.".*")
+"au Filetype wiki silent! call matchadd("Question", "[0-9][0-9][0-9][0-9][-/.][0-9][0-9][-/.][0-9][0-9]")
+"au Filetype wiki silent! call matchadd("WarningMsg", "TODO")
+"au Filetype wiki silent! call matchadd("DiffAdd", "NOTE")
+"au Filetype wiki silent! call matchadd("DiffAdd", "NOTES")
+"au Filetype wiki silent! call matchadd("DiffAdd", "INBOX")
+"au Filetype wiki silent! call matchadd("ErrorMsg", "FIXIT")
+"au Filetype wiki silent! call matchadd("ErrorMsg", "TOP")
+"au Filetype wiki silent! call matchadd("SpellLocal", "NEXT")
+"au Filetype wiki silent! call matchadd("PmenuSel", "HOLD")
+"au Filetype wiki silent! call matchadd("IncSearch", "SHELF")
+augroup END
+doautoall wiki FileType wiki
+"doautoall wiki BufEnter,BufNew */wiki/*.txt
+
+augroup qf
+au!
+au FileType qf hi Search ctermfg=none ctermbg=none cterm=bold
+"au Filetype qf silent! call matchadd("WarningMsg", ".*".g:year.'[-/.]'.g:month.'[-/.]'.g:day.".*")
+"au Filetype qf silent! call matchadd("Question", "[0-9][0-9][0-9][0-9][-/.][0-9][0-9][-/.][0-9][0-9]")
+augroup end
+doautoall qf FileType qf
