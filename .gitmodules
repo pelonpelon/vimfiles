@@ -40,3 +40,6 @@
 [submodule "bundle/Sass-highlighting"]
 	path = bundle/Sass-highlighting
 	url = http://github.com/vim-scripts/Sass.git
+[submodule "bundle/apidoc.vim"]
+	path = bundle/apidoc.vim
+	url = git://github.com/vim-scripts/apidock.vim.git
