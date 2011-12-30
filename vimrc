@@ -24,7 +24,7 @@ filetype off                   " required!
 call pathogen#runtime_append_all_bundles()
 call pathogen#infect()
 call pathogen#helptags()
-"let g:ragtag_global_maps = 1 
+let g:ragtag_global_maps = 1 
 "let NERDTreeIgnore=['\.rbc$', '\~$']
 "map <f1> :NERDTreeToggle<CR>
 
@@ -171,11 +171,12 @@ set modeline
 set modelines=10
 
 " Default color scheme
-"so ~/.vim/bundle/vividchalk.vim/colors/vividchalk.vim
+so ~/.vim/bundle/vividchalk.vim/colors/vividchalk.vim
 
 "Directories for swp files and backups
 set nobackup
 
+set statusline=%<%f\ %m\ %=%-20.(\ %y%r\ %{fugitive#statusline()}%)%-18.(\ %l/%L\ %v\ %)\ %P
 " done
 let g:loaded_vimrc = 1
-"set statusline=%<%f\ %m\ %=%-20.(\ %y%r\ %{fugitive#statusline()}%)%-18.(\ %l/%L\ %v\ %)\ %P
+so ~/.vim/vimrc.local
