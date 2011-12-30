@@ -1,20 +1,20 @@
 set nocompatible               " be iMproved
 filetype off                   " required!
 
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
+"set rtp+=~/.vim/bundle/vundle/
+"call vundle#rc()
 
-Bundle 'pathogen'
+"Bundle 'pathogen'
 " let Vundle manage Vundle
 " required! 
-Bundle 'gmarik/vundle'
+"Bundle 'gmarik/vundle'
 " github
-Bundle 'tpope/vim-rails.git'
-Bundle 'tpope/vim-haml.git'
+"Bundle 'tpope/vim-rails.git'
+"Bundle 'tpope/vim-haml.git'
 " vim-scripts repos
-Bundle 'The-NERD-Tree'
-Bundle 'Ack'
-Bundle 'ragtag'
+"Bundle 'The-NERD-Tree'
+"Bundle 'Ack'
+"Bundle 'ragtag'
 " non github repos
 " Bundle 'git://git.wincent.com/command-t.git'
 
@@ -24,9 +24,9 @@ Bundle 'ragtag'
 call pathogen#runtime_append_all_bundles()
 call pathogen#infect()
 call pathogen#helptags()
-let g:ragtag_global_maps = 1 
-let NERDTreeIgnore=['\.rbc$', '\~$']
-map <f1> :NERDTreeToggle<CR>
+"let g:ragtag_global_maps = 1 
+"let NERDTreeIgnore=['\.rbc$', '\~$']
+"map <f1> :NERDTreeToggle<CR>
 
 filetype plugin indent on     " required! 
 
@@ -101,10 +101,10 @@ function! s:setupMarkup()
   map <buffer> <Leader>p :Mm <CR>
 endfunction
 
-function! BundleConnect()
-  set runtimepath+=~/.vim/bundle/vundle
-  call vundle#rc()
-endfunction
+"function! BundleConnect()
+"  set runtimepath+=~/.vim/bundle/vundle
+"  call vundle#rc()
+"endfunction
 
 " make and python use real tabs
 au FileType make                                     set noexpandtab
@@ -171,11 +171,11 @@ set modeline
 set modelines=10
 
 " Default color scheme
-so ~/.vim/bundle/vividchalk.vim/colors/vividchalk.vim
+"so ~/.vim/bundle/vividchalk.vim/colors/vividchalk.vim
 
 "Directories for swp files and backups
 set nobackup
 
 " done
 let g:loaded_vimrc = 1
-set statusline=%<%f\ %m\ %=%-20.(\ %y%r\ %{fugitive#statusline()}%)%-18.(\ %l/%L\ %v\ %)\ %P
+"set statusline=%<%f\ %m\ %=%-20.(\ %y%r\ %{fugitive#statusline()}%)%-18.(\ %l/%L\ %v\ %)\ %P
